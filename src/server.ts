@@ -6,8 +6,9 @@ import express, { Request, Response } from 'express';
 import * as http from 'http';
 import * as WebSocket from 'ws';
 
-import { Map as MapData } from './map';
+import { Map } from './map';
 import { Position } from './models/position';
+import { MapData } from './models/mapdata';
 
 const app = express();
 const server = http.createServer(app);
@@ -18,12 +19,12 @@ const validPos = (mapData: Position, pos: Position) => {
 };
 
 app.use(morgan("dev"));
-app.set("mapData", new MapData().GetConfig());
+app.set("mapData", new Map().GetConfig());
 app.get("/map", (req: Request, res: Response) => {
-    const mapData = app.get("mapData");
-    if (mapData.d.length !== mapData.h * mapData.w) {
+    const mapData = app.get("mapData") as MapData;
+    if (mapData.grid.length !== mapData.position.h * mapData.position.w) {
         res.status(500);
-        res.send("Error: map size doesn't match expected dimensions");
+        res.send(`Error: map size doesn't match expected dimensions\nlength ${mapData.grid.length}, h ${mapData.position.h} w ${mapData.position.w}`);
     } else {
         res.send(mapData);
     }

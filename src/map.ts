@@ -1,6 +1,8 @@
+import { MapData } from "./models/mapdata";
+
 export class Map {
     private mapDim = [4, 4];
-    private mapGrid: string[] = [];
+    private mapGrid: string[];
     constructor() {
         const r = "r"; //meeting room
         const c = "c"; //main conference room
@@ -12,19 +14,17 @@ export class Map {
             r, r, r, r
         ];
 
-
-
         var count = 0;
         for (let x in mapGrid) {
             if (mapGrid[x] === r) {
                 mapGrid[x] = (count++).toString();
             }
         }
-
+        this.mapGrid = mapGrid;
     }
 
-    public GetConfig() {
-        return { w: this.mapDim[0], h: this.mapDim[1], d: this.mapGrid };
+    public GetConfig(): MapData {
+        return new MapData(this.mapDim[0],this.mapDim[1], this.mapGrid);
     }
 }
 

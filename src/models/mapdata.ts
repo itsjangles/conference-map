@@ -1,6 +1,17 @@
 import { Position } from "./position";
 
 export class MapData {
-    public pos: Position = new Position();
-    public grid: string[] = [];
+    private _pos: Position;
+    private _grid: string[];
+    public get position(): Position {
+        return this._pos;
+    }
+    public get grid(): string[] {
+        return this._grid;
+    }
+
+    constructor(w: number, h: number, d: string[]) {
+        this._pos = new Position(h, w);
+        this._grid = d.slice();
+    }
 }
