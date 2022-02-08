@@ -14,8 +14,8 @@ const app = express();
 const server = http.createServer(app);
 const ws = new WebSocket.Server({ server });
 
-const validPos = (mapData: Position, pos: Position) => {
-    return pos.h <= mapData.h && pos.w <= mapData.w;
+const validPos = (mapData: MapData, pos: Position) => {
+    return pos.h <= mapData.position.h && pos.w <= mapData.position.w;
 };
 
 app.use(morgan("dev"));
