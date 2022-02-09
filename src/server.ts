@@ -3,6 +3,8 @@ import express, { Request, Response } from 'express';
 import * as http from 'http';
 import * as WebSocket from 'ws';
 import Guid from 'guid';
+import * as qs from 'qs';
+import cors from 'cors';
 
 import { Map } from './map';
 import { Position } from './models/position';
@@ -22,6 +24,7 @@ const validPos = (mapData: MapData, pos: Position) => {
 const batchTimeout = 5000; // For batching position updates
 
 app.use(morgan("dev"));
+app.use(cors());
 const map = new Map();
 app.set("mapData", map.GetConfig());
 app.set("map", map);
@@ -40,13 +43,17 @@ const broadcast = (data: any, sender: WebSocket) => {
     const all = data.type === "mapUpdate";
     ws.clients.forEach(client => {
         if (client !== sender) {
-        client.send(JSON.stringify(data));
+            client.send(JSON.stringify(data));
         }
     });
 };
 
-ws.on("connection", (socket: WebSocket) => {
-    const userid = Guid.create().toString();
+ws.on("connection", (socket: WebSocket, request) => {
+    let reconnectId: string | undefined = "";
+    if (request.url) {
+        reconnectId = qs.parse(request.url.slice(request.url.indexOf("?") + 1))["id"]?.toString();
+    }
+    const userid = reconnectId || Guid.create().toString();
     // emitter.on(userid, message => {
     //     socket.send(message);
     // });
@@ -75,7 +82,7 @@ ws.on("connection", (socket: WebSocket) => {
     //     emitter.removeAllListeners(userid);
     // });
 
-    socket.send(JSON.stringify({ "message": "Welcome!", "id": userid }));
+    socket.send(JSON.stringify({ "type": "connected", "message": "Welcome!", "id": userid }));
 });
 
-server.listen(3000, () => { console.log("Server ready") });
+server.listen(3333, () => { console.log("Server ready") });
